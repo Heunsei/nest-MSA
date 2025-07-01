@@ -1,18 +1,15 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PaymentModule } from './payment/payment.module';
 import * as Joi from 'joi';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        ACCESS_TOKEN_SECRET: Joi.string().required(),
-        REFRESH_TOKEN_SECRET: Joi.string().required(),
-        HTTP_PORT: Joi.number().required(),
         DB_URL: Joi.string().required(),
       }),
     }),
@@ -25,8 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
-    UserModule,
-    AuthModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

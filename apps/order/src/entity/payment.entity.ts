@@ -1,0 +1,34 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
+export enum PaymentMethod {
+  creditCard = 'CreaditCard',
+  kakao = 'Kakao',
+}
+
+@Schema({
+  _id: false,
+})
+export class Payment {
+  @Prop({
+    required: true,
+  })
+  paymentId: string;
+
+  @Prop({
+    enum: PaymentMethod,
+    default: PaymentMethod.creditCard,
+  })
+  paymentMethod: PaymentMethod;
+
+  @Prop({
+    required: true,
+  })
+  paymentName: string;
+
+  @Prop({
+    required: true,
+  })
+  amount: number;
+}
+
+export const PaymentSchema = SchemaFactory.createForClass(Payment);

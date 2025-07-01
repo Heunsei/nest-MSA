@@ -1,7 +1,16 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UnauthorizedException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register-dto';
 import { Authorization } from './decorator/authorization.decorator';
+import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
+import { ParseBearerTokenDto } from './dto/parse-bearer-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,5 +26,28 @@ export class AuthController {
     }
 
     return this.authService.register(token, registerDto);
+  }
+
+  @Post('login')
+  @UsePipes(ValidationPipe)
+  loginUser(@Authorization() token: string) {
+    if (token === null) {
+      throw new UnauthorizedException('토큰을 입력해주세요');
+    }
+
+    return this.authService.login(token);
+  }
+
+  // micro service 에서 제공해주는 메세지를 받을 수 있는 방법
+  @MessagePattern(
+    {
+      cmd: 'parse_bearer_token',
+    },
+    Transport.TCP,
+  )
+  @UsePipes(ValidationPipe)
+  parseBearerToken(@Payload() payload: ParseBearerTokenDto) {
+    console.log('request received', payload);
+    return this.authService.parseBearerToken(payload.token, false);
   }
 }
