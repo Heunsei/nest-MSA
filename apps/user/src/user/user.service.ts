@@ -33,4 +33,14 @@ export class UserService {
 
     return this.userRepository.findOne({ where: { email } });
   }
+
+  async getUserById(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new BadRequestException('해당 유저는 존재하지 않습니다');
+    }
+
+    return user;
+  }
 }

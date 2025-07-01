@@ -4,6 +4,8 @@ import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { NOTIFICATION_SERVICE } from '@app/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -16,11 +18,27 @@ import { ConfigService } from '@nestjs/config';
     TypeOrmModule.forRootAsync({
       useFactory: (ConfigService: ConfigService) => ({
         type: 'postgres',
-        url: ConfigService.getOrThrow('DB_URL'),
+        url: ConfigService.getOrThrow<string>('DB_URL'),
         autoLoadEntities: true,
         synchronize: true,
       }),
       inject: [ConfigService],
+    }),
+    ClientsModule.registerAsync({
+      clients: [
+        {
+          name: NOTIFICATION_SERVICE,
+          useFactory: (configService: ConfigService) => ({
+            transport: Transport.TCP,
+            options: {
+              host: configService.getOrThrow<string>('NOTIFICATION_HOST'),
+              port: configService.getOrThrow<number>('NOTIFICATION_TCP_PORT'),
+            },
+          }),
+          inject: [ConfigService],
+        },
+      ],
+      isGlobal: true,
     }),
     PaymentModule,
   ],

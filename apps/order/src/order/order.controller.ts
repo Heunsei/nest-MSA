@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { Authorization } from 'apps/user/src/auth/decorator/authorization.decorator';
-import { CreateOrderDto } from '../dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 
 @Controller('order')
 export class OrderController {

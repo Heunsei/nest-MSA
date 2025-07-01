@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 export enum PaymentMethod {
-  creditCard = 'CreaditCard',
+  creditCard = 'CreditCard',
   kakao = 'Kakao',
 }
 

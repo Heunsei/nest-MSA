@@ -19,5 +19,5 @@ export class AddressDto {
 
   @IsString()
   @IsNotEmpty()
-  contry: string;
+  country: string;
 }

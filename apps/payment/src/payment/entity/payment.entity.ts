@@ -46,7 +46,7 @@ export class Payment {
   birthOrRegistration: string;
 
   @Column()
-  passwordTowDigits: string;
+  passwordTwoDigits: string;
 
   @Column({
     enum: NotificationStatus,

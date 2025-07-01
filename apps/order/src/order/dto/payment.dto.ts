@@ -24,7 +24,7 @@ export class PaymentDto {
 
   @IsString()
   @IsNotEmpty()
-  birthOrRegisteration: string;
+  birthOrRegistration: string;
 
   @IsString()
   @IsNotEmpty()
