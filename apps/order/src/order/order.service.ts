@@ -186,4 +186,8 @@ export class OrderService {
       throw e;
     }
   }
+
+  async changeOrderStatus(orderId: string, status: OrderStatus) {
+    return this.orderModel.findByIdAndUpdate(orderId, { status });
+  }
 }

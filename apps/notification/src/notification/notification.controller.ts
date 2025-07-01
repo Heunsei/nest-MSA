@@ -18,5 +18,7 @@ export class NotificationController {
   @UseInterceptors(RpcInterceptor)
   async sendPaymentNotification(
     @Payload() payload: SendPaymentNotificationDto,
-  ) {}
+  ) {
+    return this.notificationService.sendPaymentNotification(payload);
+  }
 }
