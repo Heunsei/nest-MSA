@@ -14,7 +14,9 @@ import { RpcInterceptor } from '@app/common/const/interceptor/rpc.interceotor';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Post('sample')
+  @MessagePattern({ cmd: 'create_samples' })
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(RpcInterceptor)
   createSample() {
     return this.productService.createSample();
   }

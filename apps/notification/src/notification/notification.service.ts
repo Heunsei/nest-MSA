@@ -31,6 +31,7 @@ export class NotificationService {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
+  // orderContoroller에 message 이벤트 전달
   sendDeliveryStartedMessage(id: string) {
     this.orderService.emit({ cmd: 'delivery_started' }, id);
   }

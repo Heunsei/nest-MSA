@@ -26,11 +26,11 @@ export class OrderService {
     private readonly orderModel: Model<Order>,
   ) {}
 
-  async createOrder(createOrderDto: CreateOrderDto, token: string) {
-    const { productIds, address, payment } = createOrderDto;
+  async createOrder(createOrderDto: CreateOrderDto) {
+    const { productIds, address, payment, meta } = createOrderDto;
 
     // 사용자 정보 가져오기
-    const user = await this.getUserFromToken(token);
+    const user = await this.getUserFromToken(meta.user.sub);
 
     // 상품 정보 가져오기
     const products = await this.getProductsByIds(productIds);
@@ -61,20 +61,22 @@ export class OrderService {
     return this.orderModel.findById(order._id);
   }
 
-  private async getUserFromToken(token: string) {
-    // USER - MS : jwtToken 검증
-    const tResp = await lastValueFrom(
-      this.userService.send({ cmd: 'parse_bearer_token' }, { token }),
-    );
+  // gateway에서 전부 처리를 하고 ( 가드 및 미들웨어 ) 데이터를 전달해주기 때문에 더이상
+  // User를 검증하는 과정이 필요가 없어짐
+  private async getUserFromToken(userId: string) {
+    // // USER - MS : jwtToken 검증
+    // const tResp = await lastValueFrom(
+    //   this.userService.send({ cmd: 'parse_bearer_token' }, { token }),
+    // );
 
-    if (tResp.status === 'error') {
-      throw new PaymentCancelledException(tResp);
-    }
+    // if (tResp.status === 'error') {
+    //   throw new PaymentCancelledException(tResp);
+    // }
 
-    console.log(tResp);
+    // console.log(tResp);
 
-    // USER - MS : user 가져오기
-    const userId = tResp.data.sub;
+    // // USER - MS : user 가져오기
+    // const userId = tResp.data.sub;
 
     const uResp = await lastValueFrom(
       this.userService.send({ cmd: 'get_user_info' }, { userId }),

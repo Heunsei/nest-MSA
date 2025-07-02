@@ -14,6 +14,7 @@ import { NotificationModule } from './notification/notification.module';
         DB_URL: Joi.string().required(),
       }),
     }),
+    // notification app 은 mogoDB 사용
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.getOrThrow<string>('DB_URL'),
