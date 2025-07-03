@@ -10,7 +10,7 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async createSample() {
+  async createSamples() {
     const data = [
       {
         name: '사과',

@@ -1,10 +1,11 @@
-import { ORDER_SERVICE } from '@app/common';
+import { ORDER_SERVICE, OrderMicroService } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
 import { NotificationModule } from './notification/notification.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -26,10 +27,11 @@ import { NotificationModule } from './notification/notification.module';
         {
           name: ORDER_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.getOrThrow<string>('ORDER_HOST'),
-              port: configService.getOrThrow<number>('ORDER_TCP_PORT'),
+              package: OrderMicroService.protobufPackage,
+              protoPath: join(process.cwd(), '/proto/order.proto'),
+              url: configService.getOrThrow('ORDER_GRPC_URL'),
             },
           }),
           inject: [ConfigService],

@@ -4,8 +4,9 @@ import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { NOTIFICATION_SERVICE } from '@app/common';
+import { NOTIFICATION_SERVICE, NotificationMicroService } from '@app/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -24,15 +25,18 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       }),
       inject: [ConfigService],
     }),
+    // 내가 클라이언트로서 다른 서버에 연결할때의 정보를 넣어놓는것
+    // 이렇게 생긴 마이크로 서비스가 있을건데 이것을 연결할것이라는 뜻.
     ClientsModule.registerAsync({
       clients: [
         {
           name: NOTIFICATION_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.getOrThrow<string>('NOTIFICATION_HOST'),
-              port: configService.getOrThrow<number>('NOTIFICATION_TCP_PORT'),
+              package: NotificationMicroService.protobufPackage,
+              protoPath: join(process.cwd(), 'proto/notification.proto'),
+              url: configService.getOrThrow('NOTIFICATION_GRPC_URL'),
             },
           }),
           inject: [ConfigService],

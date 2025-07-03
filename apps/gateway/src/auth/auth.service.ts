@@ -1,41 +1,38 @@
-import { USER_SERVICE } from '@app/common';
-import { Inject, Injectable, Post } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { USER_SERVICE, UserMicroService } from '@app/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { ClientGrpc } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { RegisterDto } from './dto/register.dto';
-import { Authorization } from './decorator/authorization.decorator';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
+  // user는 auth랑 user가 두개 존재
+  authService: UserMicroService.AuthServiceClient;
   constructor(
     @Inject(USER_SERVICE)
-    private readonly userMicroservice: ClientProxy,
+    private readonly userMicroservice: ClientGrpc,
   ) {}
+  onModuleInit() {
+    this.authService =
+      this.userMicroservice.getService<UserMicroService.AuthServiceClient>(
+        'AuthService',
+      );
+  }
 
   register(token: string, registerDto: RegisterDto) {
     return lastValueFrom(
-      this.userMicroservice.send(
-        {
-          cmd: 'register',
-        },
-        {
-          ...registerDto,
-          token,
-        },
-      ),
+      this.authService.registerUser({
+        ...registerDto,
+        token,
+      }),
     );
   }
 
   login(token: string) {
     return lastValueFrom(
-      this.userMicroservice.send(
-        {
-          cmd: 'login',
-        },
-        {
-          token,
-        },
-      ),
+      this.authService.loginUser({
+        token,
+      }),
     );
   }
 }

@@ -9,9 +9,7 @@ export enum PaymentMethod {
   _id: false,
 })
 export class Payment {
-  @Prop({
-    required: true,
-  })
+  @Prop()
   paymentId: string;
 
   @Prop({

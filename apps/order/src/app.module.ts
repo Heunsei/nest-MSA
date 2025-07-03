@@ -1,10 +1,18 @@
-import { PAYMENT_SERVICE, PRODUCT_SERVICE, USER_SERVICE } from '@app/common';
+import {
+  PAYMENT_SERVICE,
+  PaymentMicroService,
+  PRODUCT_SERVICE,
+  ProductMicroService,
+  USER_SERVICE,
+  UserMicroService,
+} from '@app/common';
 import { OrderModule } from './order/order.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from 'joi';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -32,10 +40,11 @@ import * as Joi from 'joi';
         {
           name: USER_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.getOrThrow<string>('USER_HOST'),
-              port: configService.getOrThrow<number>('USER_TCP_PORT'),
+              package: UserMicroService.protobufPackage,
+              protoPath: join(process.cwd(), '/proto/user.proto'),
+              url: configService.getOrThrow('USER_GRPC_URL'),
             },
           }),
           inject: [ConfigService],
@@ -43,10 +52,11 @@ import * as Joi from 'joi';
         {
           name: PRODUCT_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.getOrThrow<string>('PRODUCT_HOST'),
-              port: configService.getOrThrow<number>('PRODUCT_TCP_PORT'),
+              package: ProductMicroService.protobufPackage,
+              protoPath: join(process.cwd(), '/proto/product.proto'),
+              url: configService.getOrThrow('PRODUCT_GRPC_URL'),
             },
           }),
           inject: [ConfigService],
@@ -54,10 +64,11 @@ import * as Joi from 'joi';
         {
           name: PAYMENT_SERVICE,
           useFactory: (configService: ConfigService) => ({
-            transport: Transport.TCP,
+            transport: Transport.GRPC,
             options: {
-              host: configService.getOrThrow<string>('PAYMENT_HOST'),
-              port: configService.getOrThrow<number>('PAYMENT_TCP_PORT'),
+              package: PaymentMicroService.protobufPackage,
+              protoPath: join(process.cwd(), '/proto/payment.proto'),
+              url: configService.getOrThrow('PAYMENT_GRPC_URL'),
             },
           }),
           inject: [ConfigService],

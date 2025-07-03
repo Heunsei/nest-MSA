@@ -1,4 +1,4 @@
-import { UserPayloadDto } from '../user-payload.dto';
+import { UserPayloadDto } from '../dto';
 
 export interface UserMeta {
   meta: {

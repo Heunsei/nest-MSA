@@ -15,7 +15,7 @@ export class MakePaymentDto {
 
   @IsString()
   @IsNotEmpty()
-  cardName: string;
+  cardNumber: string;
 
   @IsString()
   @IsNotEmpty()

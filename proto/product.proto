@@ -1,0 +1,35 @@
+syntax = 'proto3';
+
+package product;
+
+service ProductService {
+    rpc CreateSamples(CreateSamplesRequest) returns (CreateSamplesResponse);
+    rpc GetProductsInfo(GetProductsInfoRequest) returns (GetProductsInfoResponse);
+}
+
+// 파라미터가 존재하지 않는 경우 파라미터를 넣고, 그걸 없애서 로직을 처리
+// message는 비어있고 위에 CreateSamples 에 Request는 넣어야한다는 뜻
+message CreateSamplesRequest {
+    
+}
+
+message CreateSamplesResponse {
+    bool success =1;
+}
+
+// 배열 전달 시 repeated 사용
+message GetProductsInfoRequest {
+    repeated string productIds = 1;
+}
+
+message GetProductsInfoResponse {
+    message ProductInfo {
+        string id = 1;
+        string name = 2;
+        string description = 3;
+        float price = 4;
+        uint32 stock = 5;
+    }
+    // 위에 정의된 ProductInfo를 반복
+    repeated ProductInfo products = 1;
+}

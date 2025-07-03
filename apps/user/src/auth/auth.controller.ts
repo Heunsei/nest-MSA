@@ -1,51 +1,30 @@
-import {
-  Body,
-  Controller,
-  UnauthorizedException,
-  UseInterceptors,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { MessagePattern, Payload, Transport } from '@nestjs/microservices';
-import { ParseBearerTokenDto } from './dto/parse-bearer-token.dto';
-import { RpcInterceptor } from '@app/common/const/interceptor/rpc.interceotor';
-import { LoginDto } from './dto/login.dto';
+import { UserMicroService } from '@app/common';
 
 @Controller('auth')
-export class AuthController {
+@UserMicroService.AuthServiceControllerMethods()
+export class AuthController implements UserMicroService.AuthServiceController {
   constructor(private readonly authService: AuthService) {}
 
   // micro service 에서 제공해주는 메세지를 받을 수 있는 방법
-  @MessagePattern(
-    {
-      cmd: 'parse_bearer_token',
-    },
-    Transport.TCP,
-  )
-  @UsePipes(ValidationPipe)
-  @UseInterceptors(RpcInterceptor)
-  parseBearerToken(@Payload() payload: ParseBearerTokenDto) {
-    return this.authService.parseBearerToken(payload.token, false);
+  parseBearerToken(request: UserMicroService.ParseBearerTokenRequest) {
+    return this.authService.parseBearerToken(request.token, false);
   }
 
-  @MessagePattern({
-    cmd: 'register',
-  })
-  registerUser(@Payload() registerDto: RegisterDto) {
-    const { token } = registerDto;
+  // @ts-ignore
+  registerUser(request: UserMicroService.RegisterUserRequest) {
+    const { token } = request;
 
-    if (registerDto.token === null) {
+    if (request.token === null) {
       throw new UnauthorizedException('토큰을 입력해주세요');
     }
 
-    return this.authService.register(token, registerDto);
+    return this.authService.register(token, request);
   }
 
-  @MessagePattern({ cmd: 'login' })
-  loginUser(@Payload() loginDto: LoginDto) {
-    const { token } = loginDto;
+  loginUser(request: UserMicroService.LoginUserRequest) {
+    const { token } = request;
 
     if (token === null) {
       throw new UnauthorizedException('토큰을 입력해주세요');
