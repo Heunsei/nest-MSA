@@ -1,9 +1,16 @@
-import { Controller, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  UnauthorizedException,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserMicroService } from '@app/common';
+import { Metadata } from '@grpc/grpc-js';
+import { GrpcInterceptor } from '@app/common/const/interceptor/grpc.interceptor';
 
 @Controller('auth')
 @UserMicroService.AuthServiceControllerMethods()
+@UseInterceptors(GrpcInterceptor)
 export class AuthController implements UserMicroService.AuthServiceController {
   constructor(private readonly authService: AuthService) {}
 
@@ -23,7 +30,9 @@ export class AuthController implements UserMicroService.AuthServiceController {
     return this.authService.register(token, request);
   }
 
-  loginUser(request: UserMicroService.LoginUserRequest) {
+  loginUser(request: UserMicroService.LoginUserRequest, metadata: Metadata) {
+    console.log(metadata);
+
     const { token } = request;
 
     if (token === null) {

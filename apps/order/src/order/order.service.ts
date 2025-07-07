@@ -3,6 +3,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import {
+  constructMetadata,
   PAYMENT_SERVICE,
   PaymentMicroService,
   PRODUCT_SERVICE,
@@ -19,6 +20,7 @@ import { Order, OrderStatus } from './entity/order.entity';
 import { Model } from 'mongoose';
 import { PaymentDto } from './dto/payment.dto';
 import { PaymentFailedException } from './exception/payment-failed.exception';
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
 export class OrderService implements OnModuleInit {
@@ -57,14 +59,14 @@ export class OrderService implements OnModuleInit {
       );
   }
 
-  async createOrder(createOrderDto: CreateOrderDto) {
+  async createOrder(createOrderDto: CreateOrderDto, metadata: Metadata) {
     const { productIds, address, payment, meta } = createOrderDto;
 
     // 사용자 정보 가져오기
-    const user = await this.getUserFromToken(meta.user.sub);
+    const user = await this.getUserFromToken(meta.user.sub, metadata);
 
     // 상품 정보 가져오기
-    const products = await this.getProductsByIds(productIds);
+    const products = await this.getProductsByIds(productIds, metadata);
 
     // 총 금액 계산하기
     const totalAmount = this.calculateTotalAmount(products);
@@ -86,6 +88,7 @@ export class OrderService implements OnModuleInit {
       order._id.toString(),
       payment,
       user.email,
+      metadata,
     );
 
     // 결과 반환
@@ -94,7 +97,7 @@ export class OrderService implements OnModuleInit {
 
   // gateway에서 전부 처리를 하고 ( 가드 및 미들웨어 ) 데이터를 전달해주기 때문에 더이상
   // User를 검증하는 과정이 필요가 없어짐
-  private async getUserFromToken(userId: string) {
+  private async getUserFromToken(userId: string, metadata: Metadata) {
     // // USER - MS : jwtToken 검증
     // const tResp = await lastValueFrom(
     //   this.userService.send({ cmd: 'parse_bearer_token' }, { token }),
@@ -109,16 +112,27 @@ export class OrderService implements OnModuleInit {
     // // USER - MS : user 가져오기
     // const userId = tResp.data.sub;
 
-    const uResp = await lastValueFrom(this.userService.getUserInfo({ userId }));
+    const uResp = await lastValueFrom(
+      this.userService.getUserInfo(
+        { userId },
+        constructMetadata(OrderService.name, 'getUserFromToken', metadata),
+      ),
+    );
 
     return uResp;
   }
 
-  private async getProductsByIds(productIds: string[]): Promise<Product[]> {
+  private async getProductsByIds(
+    productIds: string[],
+    metadata: Metadata,
+  ): Promise<Product[]> {
     const resp = await lastValueFrom(
-      this.productService.getProductsInfo({
-        productIds,
-      }),
+      this.productService.getProductsInfo(
+        {
+          productIds,
+        },
+        constructMetadata(OrderService.name, 'getProductsInfo', metadata),
+      ),
     );
 
     return resp.products.map((product) => ({
@@ -164,14 +178,18 @@ export class OrderService implements OnModuleInit {
     orderId: string,
     payment: PaymentDto,
     userEmail: string,
+    metadata: Metadata,
   ) {
     try {
       const resp = await lastValueFrom(
-        this.paymentService.makePayment({
-          ...payment,
-          userEmail,
-          orderId,
-        }),
+        this.paymentService.makePayment(
+          {
+            ...payment,
+            userEmail,
+            orderId,
+          },
+          constructMetadata(OrderService.name, 'processPayment', metadata),
+        ),
       );
 
       const isPaid = resp.paymentStatus === 'Approved';

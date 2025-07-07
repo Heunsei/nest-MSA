@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nginx-pv
+spec:
+  capacity:
+    storage: 1Mi
+  accessMode:
+    # ReadWriteOnce -> Read Write Mode로 하나의 노드만 점유
+    # ReadOnlyMany -> ReadOnly로 여러 노드 점유 가능
+    # ReadWriteMany -> Read Write Mode로 여러 노드 점유 가능
+    - ReadWriteOnce
+  hostPath:
+    type: DirectoryOrCreate
+    path: "/mnt/data"
