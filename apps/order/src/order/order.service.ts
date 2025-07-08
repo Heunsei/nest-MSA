@@ -107,8 +107,6 @@ export class OrderService implements OnModuleInit {
     //   throw new PaymentCancelledException(tResp);
     // }
 
-    // console.log(tResp);
-
     // // USER - MS : user 가져오기
     // const userId = tResp.data.sub;
 

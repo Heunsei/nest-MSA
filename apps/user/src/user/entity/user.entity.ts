@@ -27,7 +27,7 @@ export class User {
   profile: string;
 
   @Column({
-    select: false,
+    // select: false,
   })
   password: string;
 

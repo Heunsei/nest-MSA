@@ -11,6 +11,7 @@ import {
 } from '@app/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -26,6 +27,12 @@ import { join } from 'path';
         url: ConfigService.getOrThrow<string>('DB_URL'),
         autoLoadEntities: true,
         synchronize: true,
+      }),
+      inject: [ConfigService],
+    }),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.getOrThrow<string>('MONGO_DB_URL'),
       }),
       inject: [ConfigService],
     }),

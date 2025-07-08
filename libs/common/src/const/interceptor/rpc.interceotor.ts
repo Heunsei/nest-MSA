@@ -13,7 +13,6 @@ export class RpcInterceptor implements NestInterceptor {
           status: 'success',
           data,
         };
-        console.log(resp);
         return resp;
       }),
       catchError((err) => {
@@ -21,7 +20,6 @@ export class RpcInterceptor implements NestInterceptor {
           status: 'error',
           error: err,
         };
-        console.log(resp);
         return throwError(() => new RpcException(err));
       }),
     );

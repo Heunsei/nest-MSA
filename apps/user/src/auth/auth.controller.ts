@@ -31,7 +31,6 @@ export class AuthController implements UserMicroService.AuthServiceController {
   }
 
   loginUser(request: UserMicroService.LoginUserRequest, metadata: Metadata) {
-    console.log(metadata);
 
     const { token } = request;
 

@@ -142,6 +142,23 @@ services:
       retries: 5
       start_period: 5s
 
+  # mongo_payment:
+  #   image: mongo:8
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: mongo
+  #     MONGO_INITDB_ROOT_PASSWORD: mongo
+  #   ports:
+  #     - '6005:27017'
+  #   volumes:
+  #     - ./mongo/notification:/data/lib
+  #   command: mongod --quiet --logpath /dev/null
+  #   healthcheck:
+  #     test: echo 'db.runCommand("ping").ok | mongosh 127.0.0.1:27017/test -quiet'
+  #     interval: 5s
+  #     timeout: 30s
+  #     retries: 5
+  #     start_period: 5s  
+
   notification:
     build:
       context: .
